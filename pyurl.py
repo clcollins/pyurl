@@ -23,7 +23,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-debug = False
+debug = True
 
 ### TODO ###
 # Write random generator
@@ -65,11 +65,13 @@ def mkuri():
 
     characters = 'abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ123456789'
 
-    myuri = random.choice(characters)
-    if debug:
-        print myuri
-    else:
-        return myuri
+    myuri = []
+    while (len(myuri) < 6):
+        myuri.append(random.choice(characters))
+        if debug:
+            print 'Pass %d: %s' % (len(myuri), myuri)
+
+    return ''.join(myuri)
 
 
 pyurl()
