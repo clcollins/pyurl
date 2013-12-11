@@ -26,16 +26,22 @@
 debug = True
 
 ### TODO ###
-# Write random generator
-# Connect to MySQL
-# Accept URL
+# Accept URL to be shortened
+# Write data into mysql
 # Setup for Web
 # Get someone to pay for a URL
 
 ### Import necessary modules ###
 # Import random to grab random words
+# Import MySQLdb to use mysql (odd right?)
 
 import random
+import MySQLdb
+
+database = MySQLdb.connect(host="localhost",
+                           user="USER",
+                           passwd="PASSWD",
+                           db="pyurl")
 
 # URL to be shortened, supplied by users via webform
 # This is a placeholder until that function is built
