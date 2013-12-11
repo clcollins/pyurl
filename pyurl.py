@@ -37,13 +37,16 @@ debug = True
 
 import random
 
+# URL to be shortened, supplied by users via webform
+# This is a placeholder until that function is built
+victim = 'http://long.urls.are.bad.org/and-they-should-feel-bad?user=zoidberg&argument=why_not'
 # Set our hostname for the URL
 host = 'http://foo.com/'
 
 
 def pyurl():
     """
-    Main runner
+    Main function
     """
 
     url = []
