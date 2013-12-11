@@ -47,6 +47,7 @@ date = "2013-11-10 10:50:00"
 # Set our hostname for the URL
 host = "http://planetexpress.com/"
 
+
 def pyurl():
     """
     Main function
@@ -57,7 +58,7 @@ def pyurl():
 
     # This is what we give the user to hand out
     print url
-    
+
     # Pass our info and verify that it's not already in use in MySQL
     verify_N_write(uri)
 
@@ -95,7 +96,8 @@ def verify_N_write(uri):
     global host
 
     # The SQL statement - fill in the values further down
-    do_sql_insert = """INSERT INTO DB.TABLE (source_uri, target_url, netid, created 
+    do_sql_insert = """INSERT INTO DB.TABLE
+                       (source_uri, target_url, netid, created)
                        VALUES ('%s', '%s', '%s', '%s')"""
 
     # Setup the Database connection
@@ -103,7 +105,7 @@ def verify_N_write(uri):
                                user="USER",
                                passwd="PASS",
                                db="DB")
-    
+
     # Create the database cursor
     cursor = database.cursor()
 
@@ -114,10 +116,11 @@ def verify_N_write(uri):
             database.commit()
             #logging.warn("%d", count)
             print "%d" % count
-            #logging.info("inserted values %s, %s, %s, %s into DB.TABLE" 
+            #logging.info("inserted values %s, %s, %s, %s into DB.TABLE"
             #             % (uri, victim, netid, date))
             print "Inserted values %s, %s, %s, %s into DB.TABLE" % (uri, victim, netid, date)
-            # We were successful down this branch, so break out of the while loop
+            # We were successful down this branch,
+            # so break out of the while loop
             break
         except MySQLdb.IntegrityError:
                 #logging.warn("failed to insert values")
