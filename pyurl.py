@@ -27,7 +27,7 @@ debug = True
 
 ### TODO ###
 # Accept URL to be shortened
-# Write data into mysql
+# Add data sanitizaion for MySQL; people are mean, yo
 # Setup for Web
 # Get someone to pay for a URL
 
@@ -36,29 +36,30 @@ debug = True
 # Import MySQLdb to use mysql (odd right?)
 
 import random
-#import MySQLdb
-
-#database = MySQLdb.connect(host="localhost",
-#                           user="USER",
-#                           passwd="PASSWD",
-#                           db="pyurl")
+import MySQLdb
 
 # URL to be shortened, supplied by users via webform
 # This is a placeholder until that function is built
 victim = "http://long.urls.are.bad.org/and-they-should-feel-bad?user=zoidberg&argument=why_not"
+# Netid and date placeholders until those are built
+netid = "phil.fry@planetexpress.com"
+date = "2013-11-10 10:50:00"
 # Set our hostname for the URL
-host = "http://foo.com/"
-
+host = "http://planetexpress.com/"
 
 def pyurl():
     """
     Main function
     """
 
-    url = "%s%s" % (host, mkuri())
+    uri = mkuri()
+    url = "%s%s" % (host, uri)
 
     # This is what we give the user to hand out
     print url
+    
+    # Pass our info and verify that it's not already in use in MySQL
+    verify_N_write(uri)
 
 
 def mkuri():
@@ -76,10 +77,54 @@ def mkuri():
     myuri = []
     while (len(myuri) < 6):
         myuri.append(random.choice(characters))
-        if debug:
-            print "Pass %d: %s" % (len(myuri), myuri)
 
-    return "".join(myuri)
+    uri = "".join(myuri)
+    return uri
 
 
+def verify_N_write(uri):
+    """
+    Check that the generated URI is not already in use, and then write it to
+    the database.
+    """
+
+    # Get the global variable here
+    global cursor
+    global netid
+    global date
+    global host
+
+    # The SQL statement - fill in the values further down
+    do_sql_insert = """INSERT INTO DB.TABLE (source_uri, target_url, netid, created 
+                       VALUES ('%s', '%s', '%s', '%s')"""
+
+    # Setup the Database connection
+    database = MySQLdb.connect(host="localhost",
+                               user="USER",
+                               passwd="PASS",
+                               db="DB")
+    
+    # Create the database cursor
+    cursor = database.cursor()
+
+    # Keep trying until we're successful (with 39 Billion chances, we will be)
+    while True:
+        try:
+            count = cursor.execute(do_sql_insert % (uri, victim, netid, date))
+            database.commit()
+            #logging.warn("%d", count)
+            print "%d" % count
+            #logging.info("inserted values %s, %s, %s, %s into DB.TABLE" 
+            #             % (uri, victim, netid, date))
+            print "Inserted values %s, %s, %s, %s into DB.TABLE" % (uri, victim, netid, date)
+            # We were successful down this branch, so break out of the while loop
+            break
+        except MySQLdb.IntegrityError:
+                #logging.warn("failed to insert values")
+                print "Failed to insert values into DB.TABLE"
+    # Close the DB connection correctly so we don't have MySQL freak out
+    cursor.close()
+
+
+# DO IT!
 pyurl()
