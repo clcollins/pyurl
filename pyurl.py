@@ -23,7 +23,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-debug = True
+debug = False
 
 ### TODO ###
 # Write random generator
@@ -37,15 +37,39 @@ debug = True
 
 import random
 
+# Set our hostname for the URL
+host = 'http://foo.com/'
+
+
 def pyurl():
     """
     Main runner
     """
 
-    if debug:
-        url = '/abc123'
+    url = []
+    url.append(host)
+    url.append(mkuri())
 
-    print url
+    print ''.join(url)
+
+
+def mkuri():
+    """
+    Generate a random URI
+
+    Capital and lowercase alphanumeric gets us a ton of potential URIs.We'll
+    remove some confusing numbers and letters, (0,O,o,1,l), leaving us 57
+    potential characters to use.  Assuming a 6 character URI we get 57^6, or
+    34,296,447,249 available URLs.
+    """
+
+    characters = 'abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ123456789'
+
+    myuri = random.choice(characters)
+    if debug:
+        print myuri
+    else:
+        return myuri
 
 
 pyurl()
