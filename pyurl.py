@@ -36,18 +36,18 @@ debug = True
 # Import MySQLdb to use mysql (odd right?)
 
 import random
-import MySQLdb
+#import MySQLdb
 
-database = MySQLdb.connect(host="localhost",
-                           user="USER",
-                           passwd="PASSWD",
-                           db="pyurl")
+#database = MySQLdb.connect(host="localhost",
+#                           user="USER",
+#                           passwd="PASSWD",
+#                           db="pyurl")
 
 # URL to be shortened, supplied by users via webform
 # This is a placeholder until that function is built
-victim = 'http://long.urls.are.bad.org/and-they-should-feel-bad?user=zoidberg&argument=why_not'
+victim = "http://long.urls.are.bad.org/and-they-should-feel-bad?user=zoidberg&argument=why_not"
 # Set our hostname for the URL
-host = 'http://foo.com/'
+host = "http://foo.com/"
 
 
 def pyurl():
@@ -55,32 +55,31 @@ def pyurl():
     Main function
     """
 
-    url = []
-    url.append(host)
-    url.append(mkuri())
+    url = "%s%s" % (host, mkuri())
 
-    print ''.join(url)
+    # This is what we give the user to hand out
+    print url
 
 
 def mkuri():
     """
     Generate a random URI
 
-    Capital and lowercase alphanumeric gets us a ton of potential URIs.We'll
+    Capital and lowercase alphanumeric gets us a ton of potential URIs.We"ll
     remove some confusing numbers and letters, (0,O,o,1,l), leaving us 57
     potential characters to use.  Assuming a 6 character URI we get 57^6, or
     34,296,447,249 available URLs.
     """
 
-    characters = 'abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ123456789'
+    characters = "abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ123456789"
 
     myuri = []
     while (len(myuri) < 6):
         myuri.append(random.choice(characters))
         if debug:
-            print 'Pass %d: %s' % (len(myuri), myuri)
+            print "Pass %d: %s" % (len(myuri), myuri)
 
-    return ''.join(myuri)
+    return "".join(myuri)
 
 
 pyurl()
