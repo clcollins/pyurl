@@ -1,0 +1,27 @@
+$def with (shorts)
+
+<table border="1"> 
+   <tr>
+       <th>"Short" URL</th>
+       <th>Target URL</th>
+       <th>Creator</th>
+       <th>Created Date</th>
+    </tr>
+$for short in shorts:
+    <tr>
+        <td>http://planetexpress.com/$short.source_uri</td>
+        <td>$short.target_url</td>
+        <td>$short.netid</td>
+        <td>$short.created</td>
+    </tr>
+</table>
+
+<form method="post" action="add">
+<p>URI: &nbsp;
+<input type="text" name="source_uri" /></p>
+<p>Target URL: &nbsp;
+<input type="text" name="target_url" /></p>
+<p>NetID: &nbsp;
+<input type="text" name="remote_user" /></p>
+<input type="submit" value="add" /></p>
+</form>
