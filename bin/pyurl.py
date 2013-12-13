@@ -48,15 +48,15 @@ import os
 # local environment's setup
 
 # The database name
-DB = ''
+DB = ""
 # The table to use
-TABLE = ''
+TABLE = ""
 # The database user
-USER = ''
+USER = ""
 # The database user's password
-PASS = ''
+PASS = ""
 # The path to your pyurl folder
-LOCAL_PATH = ''
+LOCAL_PATH = ""
 # Generic name for your usernames
 # eg - "login", "username", "user_id"
 SN_SLUG = ""
@@ -70,17 +70,17 @@ debug = True
 
 ## Web.py basics
 # Tell web.py where the templates are
-render = web.template.render('%s/templates/' % LOCAL_PATH)
+render = web.template.render("%s/templates/" % LOCAL_PATH)
 
 # Define URL handling
 urls = (
-    '/', 'index',
-    '/shorten', 'shorten',
-    '/login', 'login'
+    "/", "index",
+    "/shorten", "shorten",
+    "/login", "login"
 )
 
 ## Database Connection Info
-db = web.database(dbn='mysql',
+db = web.database(dbn="mysql",
                   user=USER,
                   pw=PASS,
                   db=DB)
@@ -91,11 +91,11 @@ db = web.database(dbn='mysql',
 class index:
     def GET(self):
         ## Get the servername from the HTTP_HOST var
-        server_name = web.ctx.env.get('HTTP_HOST')
+        server_name = web.ctx.env.get("HTTP_HOST")
         # Set to REMOTE_USER var from HTTP headers
         # so we can force users to login first
-        remote_user = web.ctx.env.get('REMOTE_USER',
-                                      '')
+        remote_user = web.ctx.env.get("REMOTE_USER",
+                                      "")
 
         # Get info from the TABLE
         table = db.select(TABLE)
@@ -108,8 +108,8 @@ class shorten:
     def POST(self):
         # Set to REMOTE_USER var from HTTP headers
         # or a default, if it's not there
-        remote_user = web.ctx.env.get('REMOTE_USER',
-                                      '')
+        remote_user = web.ctx.env.get("REMOTE_USER",
+                                      "")
 
         # Get the input from the web form
         i = web.input()
@@ -129,7 +129,7 @@ class shorten:
             return "Failed to insert values into", DB.TABLE
 
         # Return to /
-        raise web.seeother('/')
+        raise web.seeother("/")
 
 
 # POST data is dropped by shibboleth if user doesn't have a session
@@ -137,7 +137,7 @@ class shorten:
 # back to the main page.
 class login:
     def GET(self):
-        raise web.seeother('/')
+        raise web.seeother("/")
 
 
 # Function to generate 6 character URIs
@@ -166,6 +166,6 @@ app = web.application(urls, globals())
 curdir = os.path.dirname(__file__)
 session = web.session.Session(
     app, web.session.DiskStore(
-        os.path.join(curdir, '%s/sessions' % LOCAL_PATH)),)
+        os.path.join(curdir, "%s/sessions" % LOCAL_PATH)),)
 
 application = app.wsgifunc()
