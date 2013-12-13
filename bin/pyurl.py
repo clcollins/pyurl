@@ -48,18 +48,18 @@ import os
 # local environment's setup
 
 # The database name
-DB=''
+DB = ''
 # The table to use
-TABLE=''
+TABLE = ''
 # The database user
-USER=''
+USER = ''
 # The database user's password
-PASS=''
+PASS = ''
 # The path to your pyurl folder
-LOCAL_PATH=''
+LOCAL_PATH = ''
 # Generic name for your usernames
 # eg - "login", "username", "user_id"
-SN_SLUG=""
+SN_SLUG = ""
 
 ##################################
 ### That's it, no more editing ###
@@ -85,13 +85,14 @@ db = web.database(dbn='mysql',
                   pw=PASS,
                   db=DB)
 
+
 ### Classes and Functions ###
 # Base class; renders index page
 class index:
     def GET(self):
         ## Get the servername from the HTTP_HOST var
         server_name = web.ctx.env.get('HTTP_HOST')
-	# Set to REMOTE_USER var from HTTP headers
+        # Set to REMOTE_USER var from HTTP headers
         # so we can force users to login first
         remote_user = web.ctx.env.get('REMOTE_USER',
                                       '')
@@ -105,7 +106,7 @@ class index:
 # Class to handle POST
 class shorten:
     def POST(self):
-	# Set to REMOTE_USER var from HTTP headers
+        # Set to REMOTE_USER var from HTTP headers
         # or a default, if it's not there
         remote_user = web.ctx.env.get('REMOTE_USER',
                                       '')
@@ -130,12 +131,14 @@ class shorten:
         # Return to /
         raise web.seeother('/')
 
+
 # POST data is dropped by shibboleth if user doesn't have a session
 # This class just forces a login (via Apache shib rule) and redirects
 # back to the main page.
 class login:
     def GET(self):
         raise web.seeother('/')
+
 
 # Function to generate 6 character URIs
 def mkuri():
@@ -161,6 +164,8 @@ def mkuri():
 app = web.application(urls, globals())
 
 curdir = os.path.dirname(__file__)
-session = web.session.Session(app, web.session.DiskStore(os.path.join(curdir,'%s/sessions' % LOCAL_PATH)),)
+session = web.session.Session(
+    app, web.session.DiskStore(
+        os.path.join(curdir, '%s/sessions' % LOCAL_PATH)),)
 
 application = app.wsgifunc()
