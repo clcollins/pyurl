@@ -1,0 +1,51 @@
+$def with (shorts, server_name, remote_user, SN_SLUG, debug)
+
+<html>
+  <head>
+  </head>
+
+  <body>
+    $if remote_user:
+      <!-- Form only available to logged in users -->
+      <div id="formbox">
+        <form method="post" action="shorten">
+          <p>
+            Target URL: <input type="text" name="target_url" />
+            <input type="submit" value="Shorten URL" />
+          </p>
+        </form>
+      </div>
+      <div id="disclaimer">
+        <p>
+          URLs created on $server_name can be accessed by anyone.  However, they require a valid $SN_SLUG to create.  
+        </p>
+      </div>
+      <!-- End form for logged in users -->
+    $else:
+      <!-- Form requires users to be logged in -->
+      <p>A valid $SN_SLUG is required to use $server_name.  Please <a href="login">Log In</a> first.</p>
+      <!-- End warning for non-logged in users -->
+
+    $if debug:
+      <!-- Print only if in Debug -->
+      <table border="1"> 
+        <tr>
+          <th>"Short" URL</th>
+          <th>Target URL</th>
+          <th>Creator</th>
+          <th>Created Date</th>
+        </tr>
+      $for short in shorts:
+        <tr>
+          <td>
+            http://$server_name/$short.source_uri</td>
+          <td>$short.target_url</td>
+          <td>$short.netid</td>
+          <td>$short.created</td>
+        </tr>
+      </table>
+      REMOTE_USER: $remote_user
+      <!-- End Debug -->
+
+  </body>
+</html>
