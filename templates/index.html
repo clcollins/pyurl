@@ -1,4 +1,4 @@
-$def with (shorts, server_name, remote_user, SN_SLUG, debug)
+$def with (shorts, server_name, remote_user, SN_SLUG)
 <!-- Copyright (C) 2013 Chris Collins
 
 This file is part of Pyurl.
@@ -43,27 +43,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <!-- Form requires users to be logged in -->
       <p>A valid $SN_SLUG is required to use $server_name.  Please <a href="login">Log In</a> first.</p>
       <!-- End warning for non-logged in users -->
-
-    $if debug:
-      <!-- Print only if in Debug -->
-      <table border="1"> 
-        <tr>
-          <th>"Short" URL</th>
-          <th>Target URL</th>
-          <th>Creator</th>
-          <th>Created Date</th>
-        </tr>
-      $for short in shorts:
-        <tr>
-          <td>
-            http://$server_name/$short.source_uri</td>
-          <td>$short.target_url</td>
-          <td>$short.netid</td>
-          <td>$short.created</td>
-        </tr>
-      </table>
-      REMOTE_USER: $remote_user
-      <!-- End Debug -->
-
   </body>
 </html>
