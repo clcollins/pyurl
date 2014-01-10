@@ -25,10 +25,17 @@
 
 ### TODO ###
 # Display Short URL and Target URL to user on POST
-# Display All User's past target and short urls
-# Figure out how to preserve POST data through session initiation
 # Figure out error handling for MySQL
 # Add data sanitizaion for MySQL; people are mean, yo
+# URL Validation, a la Django
+#regex = re.compile(
+#        r"^(?:http|ftp)s?://" # http:// or https://
+#        r"(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|" #domain...
+#        r"localhost|" #localhost...
+#        r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})" # ...or ip
+#        r"(?::\d+)?" # optional port
+#        r"(?:/?|[/?]\S+)$", re.IGNORECASE)
+#
 # Get someone to pay for a URL
 
 ### Import necessary modules ###
@@ -65,9 +72,6 @@ SN_SLUG = ""
 ### That's it, no more editing ###
 ##################################
 
-### Define some global variables ###
-debug = True
-
 ## Web.py basics
 # Tell web.py where the templates are
 render = web.template.render("%s/templates/" % LOCAL_PATH)
@@ -75,6 +79,7 @@ render = web.template.render("%s/templates/" % LOCAL_PATH)
 # Define URL handling
 urls = (
     "/", "index",
+    "/(.{6})", "redirect",
     "/shorten", "shorten",
     "/login", "login"
 )
@@ -96,11 +101,27 @@ class index:
         # so we can force users to login first
         remote_user = web.ctx.env.get("REMOTE_USER",
                                       "")
-
+        vars = dict(slug=SN_SLUG)
         # Get info from the TABLE
-        table = db.select(TABLE)
+        table = db.select(TABLE,
+                          vars,
+                          where="$slug='%s'" % remote_user,
+                          order="created DESC")
         # render index with info from TABLE and server_name
-        return render.index(table, server_name, remote_user, SN_SLUG, debug)
+        return render.index(table, server_name, remote_user, SN_SLUG)
+
+
+# Class to redirect source URIs to target URLs
+class redirect:
+    def GET(self, name):
+        vars = dict(the_uri=name)
+        target = db.select(TABLE,
+                           vars,
+                           what="target_url",
+                           where="source_uri=$the_uri")
+        for data in target:
+            the_url = data.target_url
+            raise web.seeother(the_url)
 
 
 # Class to handle POST
@@ -119,10 +140,10 @@ class shorten:
         # Gather the long URL from the user
         # remote_user set above
         try:
-            n = db.insert(TABLE,
-                          source_uri=mkuri(),
-                          target_url=i.target_url,
-                          netid=remote_user)
+            db.insert(TABLE,
+                      source_uri=mkuri(),
+                      target_url=i.target_url,
+                      netid=remote_user)
         # TODO: This doesn't actually work.
         # No IntregityError in the web.py
         except db.IntegrityError:
