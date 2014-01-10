@@ -101,11 +101,8 @@ class index:
         # so we can force users to login first
         remote_user = web.ctx.env.get("REMOTE_USER",
                                       "")
-        vars = dict(slug=SN_SLUG)
-        # Get info from the TABLE
         table = db.select(TABLE,
-                          vars,
-                          where="$slug='%s'" % remote_user,
+                          where="%s='%s'" % (SN_SLUG, remote_user),
                           order="created DESC")
         # render index with info from TABLE and server_name
         return render.index(table, server_name, remote_user, SN_SLUG)
