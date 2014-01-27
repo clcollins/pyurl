@@ -27,25 +27,20 @@
 # Display Short URL and Target URL to user on POST
 # Figure out error handling for MySQL
 # Add data sanitizaion for MySQL; people are mean, yo
-# URL Validation, a la Django
-#regex = re.compile(
-#        r"^(?:http|ftp)s?://" # http:// or https://
-#        r"(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|" #domain...
-#        r"localhost|" #localhost...
-#        r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})" # ...or ip
-#        r"(?::\d+)?" # optional port
-#        r"(?:/?|[/?]\S+)$", re.IGNORECASE)
-#
 # Get someone to pay for a URL
 
 ### Import necessary modules ###
 # Import random to grab random words
 # Import web for web.py wsgi support
 # Import os for current dir sessions support
+# Import re for regex to validate urls
+# Import urllib for url validation as well
 
 import random
 import web
 import os
+import re
+import urllib
 
 #################################
 ### ENVIRONMENT SPECIFIC INFO ###
@@ -53,20 +48,12 @@ import os
 
 # Fill these out to match your
 # local environment's setup
-
-# The database name
-DB = ""
-# The table to use
-TABLE = ""
-# The database user
-USER = ""
-# The database user's password
-PASS = ""
-# The path to your pyurl folder
-LOCAL_PATH = ""
-# Generic name for your usernames
-# eg - "login", "username", "user_id"
-SN_SLUG = ""
+DB = ""  # The database name
+TABLE = ""  # The table to use
+USER = ""  # The database user
+PASS = ""  # The database user's password
+LOCAL_PATH = ""  # The path to your pyurl folder
+SN_SLUG = ""  # Generic name for your usernames, eg - "login", "username"
 
 ##################################
 ### That's it, no more editing ###
@@ -74,7 +61,7 @@ SN_SLUG = ""
 
 ## Web.py basics
 # Tell web.py where the templates are
-render = web.template.render("%s/templates/" % LOCAL_PATH)
+render = web.template.render("%s    emplates/" % LOCAL_PATH)
 
 # Define URL handling
 urls = (
@@ -91,6 +78,10 @@ db = web.database(dbn="mysql",
                   db=DB)
 
 
+err = None
+errmsg = "<html><head>Error</head><body><h1>Error</h1><hr />%s</body></html>"
+
+
 ### Classes and Functions ###
 # Base class; renders index page
 class index:
@@ -105,7 +96,7 @@ class index:
                           where="%s='%s'" % (SN_SLUG, remote_user),
                           order="created DESC")
         # render index with info from TABLE and server_name
-        return render.index(table, server_name, remote_user, SN_SLUG)
+        return render.index(table, server_name, remote_user, SN_SLUG, err)
 
 
 # Class to redirect source URIs to target URLs
@@ -131,21 +122,27 @@ class shorten:
 
         # Get the input from the web form
         i = web.input()
+        clean_target_url = urllib.quote_plus(i.target_url)
+        valid = re.compile(r"^(?:http|ftp)s?://"  # http:// or https://
+                           r"(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|"  # domain...
+                           r"localhost|"  # localhost...
+                           r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"  # ...or ip
+                           r"(?::\d+)?"  # optional port
+                           r"(?:/?|[/?]\S+)$", re.I)
+        if not re.match(valid, clean_target_url):
+            global err
+            err = "Error"
+            #err = errmsg % "This does not appear to be a valid URL."
+            raise web.seeother("/")
+            #return errmsg % "This does not appear to be a valid URL."
 
-        # Update the database
-        # Call mkuri() to generate the URI on POST
-        # Gather the long URL from the user
-        # remote_user set above
         try:
             db.insert(TABLE,
                       source_uri=mkuri(),
-                      target_url=i.target_url,
+                      target_url=clean_target_url,
                       netid=remote_user)
-        # TODO: This doesn't actually work.
-        # No IntregityError in the web.py
-        except db.IntegrityError:
-            return "Failed to insert values into", DB.TABLE
-
+        except:
+            return errmsg % "Failed to insert values into the database."
         # Return to /
         raise web.seeother("/")
 
@@ -158,7 +155,6 @@ class login:
         raise web.seeother("/")
 
 
-# Function to generate 6 character URIs
 def mkuri():
     """
     Generate a random URI
