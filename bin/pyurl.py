@@ -55,13 +55,13 @@ PASS = ""  # The database user's password
 LOCAL_PATH = ""  # The path to your pyurl folder
 SN_SLUG = ""  # Generic name for your usernames, eg - "login", "username"
 
+
 ##################################
 ### That's it, no more editing ###
 ##################################
 
 ## Web.py basics
 # Tell web.py where the templates are
-render = web.template.render("%s    emplates/" % LOCAL_PATH)
 
 # Define URL handling
 urls = (
@@ -79,11 +79,10 @@ db = web.database(dbn="mysql",
 
 
 err = None
-errmsg = "<html><head>Error</head><body><h1>Error</h1><hr />%s</body></html>"
-
-
 ### Classes and Functions ###
 # Base class; renders index page
+
+
 class index:
     def GET(self):
         ## Get the servername from the HTTP_HOST var
@@ -108,7 +107,7 @@ class redirect:
                            what="target_url",
                            where="source_uri=$the_uri")
         for data in target:
-            the_url = data.target_url
+            the_url = urllib.unquote_plus(data.target_url)
             raise web.seeother(the_url)
 
 
@@ -122,19 +121,41 @@ class shorten:
 
         # Get the input from the web form
         i = web.input()
-        clean_target_url = urllib.quote_plus(i.target_url)
+        target_url = i.target_url
+
+        # Check for protocol, and add http if there's not one
+        protocol = re.compile(r"^(?:http|ftp)s?://", re.I)
+        if not re.match(protocol, target_url):
+            target_url = "http://" + target_url
+
+        # Regex to check against to see if the URL is valid
         valid = re.compile(r"^(?:http|ftp)s?://"  # http:// or https://
                            r"(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|"  # domain...
                            r"localhost|"  # localhost...
                            r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"  # ...or ip
                            r"(?::\d+)?"  # optional port
                            r"(?:/?|[/?]\S+)$", re.I)
-        if not re.match(valid, clean_target_url):
-            global err
-            err = "Error"
-            #err = errmsg % "This does not appear to be a valid URL."
-            raise web.seeother("/")
-            #return errmsg % "This does not appear to be a valid URL."
+
+        # Sanitize the input for the DB
+        clean_target_url = urllib.quote_plus(target_url)
+
+        # Check to see if the unencoded URL is valid or not
+        if not re.match(valid, target_url):
+            # If it's not valid, use the clean_target_url just to be safe
+            err = clean_target_url + " does not appear to be a valid URL."
+
+            ## Get the servername from the HTTP_HOST var
+            server_name = web.ctx.env.get("HTTP_HOST")
+
+            # Set to REMOTE_USER var from HTTP headers
+            # so we can force users to login first
+            remote_user = web.ctx.env.get("REMOTE_USER",
+                                          "")
+            table = db.select(TABLE,
+                              where="%s='%s'" % (SN_SLUG, remote_user),
+                              order="created DESC")
+            # render index with info from TABLE and server_name
+            return render.index(table, server_name, remote_user, SN_SLUG, err)
 
         try:
             db.insert(TABLE,
@@ -142,7 +163,7 @@ class shorten:
                       target_url=clean_target_url,
                       netid=remote_user)
         except:
-            return errmsg % "Failed to insert values into the database."
+            return ("Failed to insert values into the database.")
         # Return to /
         raise web.seeother("/")
 
@@ -175,7 +196,15 @@ def mkuri():
     return uri
 
 
+def uncode(url):
+    """
+    Unencodes the target_url for display on the web, nicely
+    """
+    return urllib.unquote_plus(url)
+
+
 app = web.application(urls, globals())
+render = web.template.render(LOCAL_PATH + "/templates/", globals={"uncode": uncode})
 
 curdir = os.path.dirname(__file__)
 session = web.session.Session(
