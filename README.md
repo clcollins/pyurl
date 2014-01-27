@@ -8,9 +8,10 @@ do not expect any of the code here to be anywhere close to professional standard
 
 Comments and suggestions welcome. Patches too, but I'll branch them as it would otherwise defeat the purpose.
 
-Files: bin/pyrul.py - the main application, configured for mod_wsgi & Apache
-       bin/pyurl-cron.py - small script to run with cron and offload rewrites to Apache
-       templates/index.html - the main pyurl template page
+Files: 
+* bin/pyrul.py - the main application, configured for mod_wsgi & Apache
+* bin/pyurl-cron.py - small script to run with cron and offload rewrites to Apache
+* templates/index.html - the main pyurl template page
 
 Copyright Information
 ---------------------
