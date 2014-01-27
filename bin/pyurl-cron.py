@@ -1,5 +1,11 @@
 #!/usr/bin/env python
-# Copyright (C) 2013 Chris Collins
+#
+# pyurl-cron
+# ==========
+#
+# Chris Collins, <christopher.collins@duke.edu>
+#
+# Copyright (C) 2013-2014 Chris Collins
 #
 # This file is part of Pyurl.
 #
