@@ -1,5 +1,5 @@
-$def with (shorts, server_name, remote_user, SN_SLUG)
-<!-- Copyright (C) 2013-2014 Chris Collins
+$def with (shorts, server_name, remote_user, SN_SLUG, err)
+<!-- Copyright (C) 2013 Chris Collins
 
 This file is part of Pyurl.
 
@@ -14,21 +14,25 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
-
+along with this program.  If not, see <http://www.gnu.org/licenses/>. -->
 
 <html>
   <head>
+    <meta name="google-site-verification" content="API7cjrZ2iGwVPpChO7O0el4nyn5byBs1Y9RMBDCLJs" />
   </head>
 
   <body>
+    $if err:
+      <div id="error">
+	<p>$err</p>
+      </div>
     $if remote_user:
       <!-- Form only available to logged in users -->
       <div id="formbox">
         <form method="post" action="shorten">
+          <p>Enter a URL to shorten:</p>
           <p>
-            Target URL: <input type="text" name="target_url" />
+            <input type="text" name="target_url" />
             <input type="submit" value="Shorten URL" />
           </p>
         </form>
@@ -38,6 +42,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           URLs created on $server_name can be accessed by anyone.  However, they require a valid $SN_SLUG to create.  
         </p>
       </div>
+      <table border="0" cellspacing="15"> 
+        <tr>
+          <th>Original URL</th>
+          <th>Shortened URL</th>
+          <th>Created Date</th>
+        </tr>
+      $for short in shorts:
+        <tr>
+          <td>
+            <a href="$uncode(short.target_url)">$uncode(short.target_url)</a>
+         </td>
+          <td>
+            <a href="http://$server_name/$short.source_uri">http://$server_name/$short.source_uri</a>
+         </td>
+          <td>$short.created</td>
+        </tr>
+      </table>
       <!-- End form for logged in users -->
     $else:
       <!-- Form requires users to be logged in -->

@@ -12,6 +12,12 @@ Files:
 * bin/pyrul.py - the main application, configured for mod_wsgi & Apache
 * bin/pyurl-cron.py - small script to run with cron and offload rewrites to Apache
 * templates/index.html - the main pyurl template page
+* templates/metrics.html - template page for displaying user's Apache log metrics
+
+Requires:
+* If you plan to use the rudimentary built in metrics, you'll need to have mod_log_sql installed
+
+Tested with Python 2.6.6 on RHEL 6.
 
 Copyright Information
 ---------------------
