@@ -8,9 +8,20 @@ do not expect any of the code here to be anywhere close to professional standard
 
 Comments and suggestions welcome. Patches too, but I'll branch them as it would otherwise defeat the purpose.
 
+Files: 
+* bin/pyrul.py - the main application, configured for mod_wsgi & Apache
+* bin/pyurl-cron.py - small script to run with cron and offload rewrites to Apache
+* templates/index.html - the main pyurl template page
+* templates/metrics.html - template page for displaying user's Apache log metrics
+
+Requires:
+* If you plan to use the rudimentary built in metrics, you'll need to have mod_log_sql installed
+
+Tested with Python 2.6.6 on RHEL 6.
+
 Copyright Information
 ---------------------
-Copyright 2013 Chris Collins
+Copyright (C) 2013-2014 Chris Collins
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 

@@ -1,0 +1,61 @@
+$def with (uris, remote_user, server_name, SN_SLUG)
+<!-- Copyright (C) 2013 Chris Collins
+
+This file is part of Pyurl.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>. -->
+
+<html>
+  <head>
+  </head>
+
+  <body>
+    <!-- Only available to logged in users -->
+    $if remote_user:
+      $for uri in uris:
+        <div class="metrics">
+          <p>http://$server_name/$uri.source_uri ($uncode(uri.target_url))</p>
+          $ logs = getlogs(uri.source_uri)
+          $ num_visits = len(logs)
+          <p>Visits: $num_visits</p>
+          $if num_visits > 0:
+            $for line in logs:
+              <table border="0" cellspacing="15"> 
+                <tr>
+                  <th>Dates</th>
+                  <th>Referer</th>
+                  <th>agent</th>
+                </tr>
+              $for line in logs:
+                <tr>
+                 <td>
+                   $line.request_time
+                 </td>
+                 <td>
+                   $line.referer
+                 </td>
+                 <td>
+                   $line.agent
+                 </td>
+                </tr>
+              </table>
+              <!-- End form for logged in users -->
+              $# End of Visits If statement
+          </div>
+     $else:
+       <!-- Form requires users to be logged in -->
+       <p>A valid $SN_SLUG is required to use $server_name.  Please <a href="login">Log In</a> first.</p>
+       <!-- End warning for non-logged in users -->
+  </body>
+</html>
