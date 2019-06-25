@@ -4,7 +4,7 @@
 # =====
 # Python-based URL shortener
 #
-# Chris Collins, <christopher.collins@duke.edu>
+# Chris Collins, <collins.christopher@gmail.com>
 #
 # v 1.0 - 2013-12-13
 #
@@ -28,10 +28,6 @@
 # - shouldn't have to re-build the page for each error
 # - maybe just a definition to call
 
-### REQUIRES ###
-# As written here, pyurl requires mod_log_sql for metrics.
-# If you're not interested in using metrics, then you can use it as is
-
 ### Import necessary modules ###
 # Import random to grab random words
 # Import web for web.py wsgi support
@@ -51,18 +47,28 @@ import urllib
 
 # Fill these out to match your
 # local environment's setup
-DB = ""  # The database name
-TABLE = ""  # The table to use
-LOGTABLE = ""  # The table that mod_log_sql writes into
-USER = ""  # The database user
-PASS = ""  # The database user's password
-LOCAL_PATH = ""  # The path to your pyurl folder
-SN_SLUG = ""  # Generic name for your usernames, eg - "login", "username"
+DB = os.getenv("PYURL_DATABASE_NAME")
+USER = os.getenv("PYURL_DATABASE_USERNAME")
+PASS = os.getenv("PYURL_DATABASE_PASSWORD")
 
+# Generic name for your usernames, eg - "login", "username"
+# Could be rewritten.  This was a poor attempt at customization
+SN_SLUG = os.getenv("PYURL_SN_SLUG", default="netid")
+
+# The path to your pyurl folder
+# This could be written better probably, to remove the need for this variable
+LOCAL_PATH = os.getenv("PYURL_LOCAL_PATH", default="/srv/web/pyurl"
 
 ##################################
 ### That's it, no more editing ###
 ##################################
+
+# Pyurl variables
+TABLE = "shorts"  # The table to use
+LOGTABLE = "access_log"
+
+
+def 
 
 ## Web.py basics
 # Tell web.py where the templates are
@@ -84,7 +90,6 @@ db = web.database(dbn="mysql",
 
 # Err var to override
 err = None
-
 
 ### Classes and Functions ###
 # Base class; renders index page
@@ -121,7 +126,7 @@ class shorten:
     def POST(self):
         ## Get the servername from the HTTP_HOST var
         server_name = web.ctx.env.get("HTTP_HOST")
-
+            
         # Set to REMOTE_USER var from HTTP headers
         # or a default, if it's not there
         remote_user = web.ctx.env.get("REMOTE_USER",
@@ -137,12 +142,12 @@ class shorten:
             target_url = "http://" + target_url
 
         # Sanitize the input for the DB
-        clean_target_url = urllib.quote_plus(target_url)
+	clean_target_url = urllib.quote_plus(target_url)
 
         # Check to see if there are more than 8160 characters in the request:
-        # Apache LimitRequestLine Directive
+        # Apache LimitRequestLine Directive 
         if not len(target_url) < 4096:
-            err = "\"" + target_url + "\" does not appear to be a valid URL.  Is it too long?"
+            err = "\""+ target_url + "\" does not appear to be a valid URL.  Is it too long?"
             table = db.select(TABLE,
                               where="%s='%s'" % (SN_SLUG, remote_user),
                               order="created DESC")
@@ -188,7 +193,7 @@ class login:
 class metrics:
     def GET(self):
         """
-        Some basic metrics for folks limited folks to use to get metrics about their Redirects
+        Some basic metrics for folks limited folks to use to get metrics about their Redirects 
         """
 
         ## Get the servername from the HTTP_HOST var
@@ -204,7 +209,7 @@ class metrics:
 
 def mkuri():
     """
-    Generate a random
+    Generate a random 
     Capital and lowercase alphanumeric gets us a ton of potential URIs.We"ll
     remove some confusing numbers and letters, (0,O,o,1,l), leaving us 57
     potential characters to use.  Assuming a 6 character URI we get 57^6, or
@@ -239,7 +244,7 @@ def getlogs(uri):
 
 
 app = web.application(urls, globals())
-render = web.template.render(LOCAL_PATH + "/templates/", globals={"uncode": uncode, "getlogs": getlogs})
+render = web.template.render(LOCAL_PATH + "/templates/", globals={"uncode": uncode,"getlogs": getlogs})
 
 curdir = os.path.dirname(__file__)
 session = web.session.Session(
