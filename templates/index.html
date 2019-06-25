@@ -1,27 +1,68 @@
-$def with (shorts)
+$def with (shorts, server_name, remote_user, SN_SLUG, err)
+<!-- Copyright (C) 2013 Chris Collins
 
-<table border="1"> 
-   <tr>
-       <th>"Short" URL</th>
-       <th>Target URL</th>
-       <th>Creator</th>
-       <th>Created Date</th>
-    </tr>
-$for short in shorts:
-    <tr>
-        <td>http://planetexpress.com/$short.source_uri</td>
-        <td>$short.target_url</td>
-        <td>$short.netid</td>
-        <td>$short.created</td>
-    </tr>
-</table>
+This file is part of Pyurl.
 
-<form method="post" action="add">
-<p>URI: &nbsp;
-<input type="text" name="source_uri" /></p>
-<p>Target URL: &nbsp;
-<input type="text" name="target_url" /></p>
-<p>NetID: &nbsp;
-<input type="text" name="remote_user" /></p>
-<input type="submit" value="add" /></p>
-</form>
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>. -->
+
+<html>
+  <head>
+    <meta name="google-site-verification" content="API7cjrZ2iGwVPpChO7O0el4nyn5byBs1Y9RMBDCLJs" />
+  </head>
+
+  <body>
+    $if err:
+      <div id="error">
+	<p>$err</p>
+      </div>
+    $if remote_user:
+      <!-- Form only available to logged in users -->
+      <div id="formbox">
+        <form method="post" action="shorten">
+          <p>Enter a URL to shorten:</p>
+          <p>
+            <input type="text" name="target_url" />
+            <input type="submit" value="Shorten URL" />
+          </p>
+        </form>
+      </div>
+      <div id="disclaimer">
+        <p>
+          URLs created on $server_name can be accessed by anyone.  However, they require a valid $SN_SLUG to create.  
+        </p>
+      </div>
+      <table border="0" cellspacing="15"> 
+        <tr>
+          <th>Original URL</th>
+          <th>Shortened URL</th>
+          <th>Created Date</th>
+        </tr>
+      $for short in shorts:
+        <tr>
+          <td>
+            <a href="$uncode(short.target_url)">$uncode(short.target_url)</a>
+         </td>
+          <td>
+            <a href="http://$server_name/$short.source_uri">http://$server_name/$short.source_uri</a>
+         </td>
+          <td>$short.created</td>
+        </tr>
+      </table>
+      <!-- End form for logged in users -->
+    $else:
+      <!-- Form requires users to be logged in -->
+      <p>A valid $SN_SLUG is required to use $server_name.  Please <a href="login">Log In</a> first.</p>
+      <!-- End warning for non-logged in users -->
+  </body>
+</html>
